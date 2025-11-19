@@ -68,7 +68,7 @@ ext {
 
 ext.deps = [
     gson          : 'com.google.code.gson:gson:2.8.2',
-    conceal       : 'com.github.ahadj65:conceacl1.3.3:1.1.3.23-4kb',
+    conceal       : 'com.github.ahadj65:conceacl1.3.3:1.1.3.23-4kb@aar',
 
     // Test dependencies
     junit         : 'junit:junit:4.12',
