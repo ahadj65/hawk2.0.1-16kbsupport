@@ -5,6 +5,7 @@ apply plugin: 'maven-publish'
 android {
 	namespace 'com.orhanobut.hawk'
   compileSdkVersion 34
+  buildToolsVersion "34.0.0"
 
   defaultConfig {
     minSdkVersion 16
@@ -51,25 +52,20 @@ tasks.whenTaskAdded { task ->
   }
 }
 
-group = "com.orhanobut" // گروه پیشنهادی (بر اساس نام بسته)
-version = "2.0.0-4kb-1" // ورژن ماژول Hawk
-def artifactId = "hawk"
+group = "com.orhanobut"
+version = "2.0.0-4kb-2"
 
 afterEvaluate {
   publishing {
     publications {
       maven(MavenPublication) {
+        artifactId project.name
         groupId group
-        artifactId artifactId
         version version
-
-        // مسیردهی صریح به Artifact AAR ماژول 'hawk'
         artifact "$project.buildDir/outputs/aar/${project.getName()}-release.aar"
       }
     }
   }
-  // تضمین اجرای انتشار پس از ساخت AAR
   tasks.getByName("publishToMavenLocal").mustRunAfter(tasks.getByName("assembleRelease"))
 }
 
-//apply from: rootProject.file('gradle/maven_push.gradle')
