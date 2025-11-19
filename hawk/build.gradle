@@ -53,19 +53,27 @@ tasks.whenTaskAdded { task ->
 }
 
 group = "com.orhanobut"
-version = "2.0.0-4kb-3"
+version = "2.0.0-4kb-4"
 
 afterEvaluate {
   publishing {
     publications {
       maven(MavenPublication) {
-        artifactId project.name
+        artifactId project.name // رفع خطای Groovy
         groupId group
         version version
-        artifact "$project.buildDir/outputs/aar/${project.getName()}-release.aar"
+
+        // ❌ خط artifact قبلی که منجر به خطای وابستگی ضمنی (Implicit Dependency) شد، حذف شده است.
+
+        // ✅ رفع خطای Implicit Dependency در Gradle 8.5:
+        // مستقیماً Task 'bundleReleaseAar' را به عنوان Artifact معرفی می‌کنیم تا وابستگی صریح ایجاد شود.
+        def releaseAar = tasks.named('bundleReleaseAar')
+        artifact(releaseAar) {
+          extension 'aar'
+          classifier ''
+        }
       }
     }
   }
-  tasks.getByName("publishToMavenLocal").mustRunAfter(tasks.getByName("assembleRelease"))
+  // mustRunAfter(assembleRelease) حذف شد، زیرا ارجاع مستقیم به bundleReleaseAar این وابستگی را ایجاد می‌کند.
 }
-
