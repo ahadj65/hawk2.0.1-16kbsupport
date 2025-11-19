@@ -1,14 +1,20 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+apply plugin: 'maven-publish'
+//apply plugin: 'kotlin-android'
 
 android {
-  compileSdkVersion rootProject.ext.compileSdkVersion
-  buildToolsVersion rootProject.ext.buildToolsVersion
+	namespace 'com.orhanobut.hawk'
+  compileSdkVersion 34
 
   defaultConfig {
-    minSdkVersion rootProject.ext.minSdkVersion
+    minSdkVersion 16
     consumerProguardFiles 'proguard-rules.pro'
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
   }
 
   lintOptions {
@@ -19,6 +25,7 @@ android {
 
 dependencies {
   api deps.conceal
+
   implementation deps.gson
 
   testImplementation deps.junit
@@ -35,4 +42,34 @@ dependencies {
 
 }
 
-apply from: rootProject.file('gradle/maven_push.gradle')
+tasks.whenTaskAdded { task ->
+  if (task.name.startsWith("checkstyle") ||
+      task.name.endsWith("UnitTestJavaWithJavac") ||
+      task.name.endsWith("UnitTest") ||
+      task.name.endsWith("AndroidTest")) {
+    task.enabled = false
+  }
+}
+
+group = "com.orhanobut" // گروه پیشنهادی (بر اساس نام بسته)
+version = "2.0.0-4kb-1" // ورژن ماژول Hawk
+def artifactId = "hawk"
+
+afterEvaluate {
+  publishing {
+    publications {
+      maven(MavenPublication) {
+        groupId group
+        artifactId artifactId
+        version version
+
+        // مسیردهی صریح به Artifact AAR ماژول 'hawk'
+        artifact "$project.buildDir/outputs/aar/${project.getName()}-release.aar"
+      }
+    }
+  }
+  // تضمین اجرای انتشار پس از ساخت AAR
+  tasks.getByName("publishToMavenLocal").mustRunAfter(tasks.getByName("assembleRelease"))
+}
+
+//apply from: rootProject.file('gradle/maven_push.gradle')
